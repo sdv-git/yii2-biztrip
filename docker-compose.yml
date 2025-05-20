@@ -1,0 +1,35 @@
+services:
+  app:
+    user: "${UID:-1000}:${GID:-1000}"
+    build:
+      context: ./docker/php
+    volumes:
+      - ./src:/var/www/html
+    environment:
+      - COMPOSER_ALLOW_SUPERUSER=1
+    depends_on:
+      - db
+
+  nginx:
+    image: nginx:1.27.5-alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./src:/var/www/html
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - app
+
+  db:
+    image: mariadb:11.4.5
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: yii2app
+      MYSQL_USER: yii2
+      MYSQL_PASSWORD: yii2
+    #volumes:
+    #  - db_data:/var/lib/mysql
+
+#volumes:
+#  db_data:
